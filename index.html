@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Brain Profile Generator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{box-sizing:border-box;font-family:'Inter',system-ui,sans-serif}
+
+body{
+  margin:0;
+  min-height:100vh;
+  background:
+    radial-gradient(circle at 20% 20%, #1e3a8a, transparent 40%),
+    radial-gradient(circle at 80% 80%, #7c3aed, transparent 40%),
+    #020617;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  color:#e5e7eb;
+  overflow:hidden;
+}
+body::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:radial-gradient(circle,rgba(56,189,248,.08),transparent 60%);
+  animation:pulse 8s infinite alternate;
+}
+@keyframes pulse{from{opacity:.4}to{opacity:1}}
+
+.made-by{
+  position:fixed;
+  top:14px;
+  left:50%;
+  transform:translateX(-50%);
+  font-size:13px;
+  letter-spacing:1.2px;
+  color:#e5e7eb;
+  opacity:.9;
+  z-index:5;
+  padding:6px 16px;
+  border-radius:999px;
+  background:rgba(15,23,42,.45);
+  backdrop-filter:blur(12px);
+  border:1px solid rgba(148,163,184,.18);
+  box-shadow:0 0 18px rgba(99,102,241,.4);
+  pointer-events:none;
+}
+
+.card{
+  position:relative;
+  z-index:1;
+  width:92%;
+  max-width:460px;
+  padding:28px;
+  border-radius:22px;
+  background:rgba(15,23,42,.55);
+  backdrop-filter:blur(18px);
+  border:1px solid rgba(148,163,184,.15);
+  box-shadow:0 0 45px rgba(99,102,241,.35);
+  animation:cardIn .5s ease;
+}
+@keyframes cardIn{
+  from{opacity:0;transform:translateY(20px) scale(.97)}
+  to{opacity:1}
+}
+
+h1,h2{text-align:center}
+.small{text-align:center;font-size:13px;color:#94a3b8}
+
+button{
+  width:100%;
+  margin-top:18px;
+  padding:15px;
+  border-radius:16px;
+  border:none;
+  font-size:16px;
+  font-weight:600;
+  color:#fff;
+  background:linear-gradient(135deg,#6366f1,#22d3ee);
+  cursor:pointer;
+  box-shadow:0 0 28px rgba(99,102,241,.5);
+  transition:.3s;
+}
+button:hover{transform:translateY(-2px) scale(1.02)}
+
+.option{
+  margin-top:12px;
+  padding:14px;
+  border-radius:16px;
+  background:rgba(2,6,23,.6);
+  border:1px solid rgba(148,163,184,.18);
+  text-align:center;
+  cursor:pointer;
+  transition:.25s;
+}
+.option:hover{
+  transform:scale(1.03);
+  border-color:#38bdf8;
+  box-shadow:0 0 25px rgba(56,189,248,.4);
+}
+
+input{
+  width:100%;
+  padding:14px;
+  border-radius:16px;
+  border:1px solid rgba(148,163,184,.2);
+  background:rgba(2,6,23,.7);
+  color:#e5e7eb;
+  margin-top:14px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="made-by">MADE WITH DHRUV ❤️</div>
+
+<div class="card">
+  <div id="app"></div>
+</div>
+
+<script>
+const app = document.getElementById("app")
+const rand = arr => arr[Math.floor(Math.random()*arr.length)]
+let startTime=0
+
+let brain={logic:0,memory:0,focus:0,impulse:0,emotion:0}
+
+/* DATA */
+const patterns=[
+ {q:"2, 6, 12, 20, ?", a:30},
+ {q:"1, 4, 9, 16, ?", a:25},
+ {q:"3, 6, 11, 18, ?", a:27},
+ {q:"5, 10, 20, 40, ?", a:80}
+]
+const memories=[
+ ["anger","rage","fury","mad","annoyed"],
+ ["joy","smile","laugh","cheer","happy"],
+ ["cold","snow","ice","freeze","frost"]
+]
+const decisions=[
+ {q:"You find a lost wallet.", o:["Return it","Ignore","Take money"]},
+ {q:"Friend cheats in exam.", o:["Report","Stay silent","Help"]},
+ {q:"You get credit for others work.", o:["Accept","Clarify","Ignore"]}
+]
+
+/* START */
+home()
+function home(){
+  app.innerHTML=`
+    <h1>🧠 Brain Profile Lab</h1>
+    <p class="small">No right or wrong. Just your mind.</p>
+    <button onclick="patternTest()">Start Scan</button>
+  `
+}
+
+/* PATTERN */
+function patternTest(){
+  const p=rand(patterns)
+  startTime=performance.now()
+  let opts=[p.a,p.a-2,p.a+2].sort(()=>Math.random()-0.5)
+  app.innerHTML=`
+    <h2>Pattern Analysis</h2>
+    <p>${p.q}</p>
+    ${opts.map(o=>`<div class="option" onclick="patternAns(${o},${p.a})">${o}</div>`).join("")}
+  `
+}
+function patternAns(s,a){
+  let t=performance.now()-startTime
+  brain.logic+=s===a?(t<2500?25:15):5
+  reactionTest()
+}
+
+/* REACTION */
+function reactionTest(){
+  app.innerHTML=`
+    <h2>Reaction Control</h2>
+    <p class="small">Click when GREEN</p>
+    <button id="rbtn" style="background:#991b1b">WAIT</button>
+  `
+  let btn=document.getElementById("rbtn")
+  setTimeout(()=>{
+    startTime=performance.now()
+    btn.style.background="#16a34a"
+    btn.textContent="CLICK"
+    btn.onclick=()=>{
+      let t=performance.now()-startTime
+      brain.focus+=t<450?25:15
+      brain.impulse+=t<300?15:5
+      memoryTest()
+    }
+  },Math.random()*2500+1500)
+}
+
+/* MEMORY */
+let mem=[]
+function memoryTest(){
+  mem=rand(memories)
+  app.innerHTML=`
+    <h2>Memory Load</h2>
+    <p>${mem.join(", ")}</p>
+  `
+  setTimeout(()=>{
+    app.innerHTML=`
+      <h2>Recall</h2>
+      <input id="m" placeholder="Type remembered words">
+      <button onclick="memoryCheck()">Submit</button>
+    `
+  },3000)
+}
+function memoryCheck(){
+  let v=document.getElementById("m").value.toLowerCase()
+  mem.forEach(w=>{if(v.includes(w))brain.memory+=5})
+  decisionTest()
+}
+
+/* DECISION */
+function decisionTest(){
+  const d=rand(decisions)
+  startTime=performance.now()
+  app.innerHTML=`
+    <h2>Decision Matrix</h2>
+    <p>${d.q}</p>
+    ${d.o.map(o=>`<div class="option" onclick="decision('${o}')">${o}</div>`).join("")}
+  `
+}
+function decision(c){
+  let t=performance.now()-startTime
+  if(c==="Return it"||c==="Clarify")brain.emotion+=20
+  if(c==="Take money"||c==="Accept")brain.impulse+=20
+  if(t<1800)brain.impulse+=10
+  focusTest()
+}
+
+/* FOCUS */
+let fr=0
+function focusTest(){fr=0;nextFocus()}
+function nextFocus(){
+  fr++
+  if(fr>5){result();return}
+  let red=Math.random()>.5
+  app.innerHTML=`
+    <h2>Focus ${fr}/5</h2>
+    <p>Click ONLY RED</p>
+    <div class="option" style="background:${red?'#dc2626':'#2563eb'}"
+         onclick="focusClick(${red})">CLICK</div>
+  `
+}
+function focusClick(ok){
+  ok?brain.focus+=10:(brain.focus-=5,brain.impulse+=5)
+  setTimeout(nextFocus,250)
+}
+
+/* RESULT */
+function result(){
+  let type="Balanced Thinker"
+  if(brain.logic>brain.emotion&&brain.logic>brain.impulse)type="Strategic Thinker"
+  if(brain.impulse>brain.logic)type="Impulsive Executor"
+  if(brain.emotion>brain.logic)type="Emotional Analyst"
+
+  app.innerHTML=`
+    <h2>🧠 Brain Profile</h2>
+    <p><b>${type}</b></p>
+    <p>Logic: ${brain.logic}%</p>
+    <p>Memory: ${brain.memory}%</p>
+    <p>Focus: ${brain.focus}%</p>
+    <p>Emotion: ${brain.emotion}%</p>
+    <p>Impulse: ${brain.impulse}%</p>
+    <hr>
+    <p class="small">
+      Your mind adapts fast.<br>
+      Under pressure, instinct slightly dominates logic.
+    </p>
+    <button onclick="location.reload()">Retake Test</button>
+  `
+}
+</script>
+
+</body>
+</html>
